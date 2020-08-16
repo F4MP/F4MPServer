@@ -50,7 +50,7 @@ int UMain()
             printf("Logging server statistics\n");
             char text[2048];
 
-            for (int i = 0; i < Config::getInstance().JSON["player-limit"]; i++) {
+            for (int i = 0; i < server.ConnectionCount(); i++) {
                 RakNetStatistics *rssSender;
                 rssSender = server.peer->GetStatistics(server.peer->GetSystemAddressFromIndex(i));
                 StatisticsToString(rssSender, text, 2048, 3);
