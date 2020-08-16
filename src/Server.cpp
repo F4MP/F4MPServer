@@ -38,7 +38,7 @@ void Server::Start(void)
     bool b = peer->Startup((unsigned short) 600,&socketDescriptor,1)== SLNet::RAKNET_STARTED;
     RakAssert(b);
     if(b)
-        std::cout << "Server has started sucesfull on port " << Config::getInstance().JSON["port"] << std::endl;
+        std::cout << "Server has started successfully on port " << Config::getInstance().JSON["port"] << std::endl;
     else
         std::cout << "Server has failed to start "<< std::endl;
     peer->SetMaximumIncomingConnections(Config::getInstance().JSON["player-limit"]);
