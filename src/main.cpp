@@ -20,6 +20,8 @@
 
 #include "ThirdParty/nlohmann/json.hpp"
 
+#include "Config.hpp"
+
 #ifdef _WINDOWS
 #include "slikenet/WindowsIncludes.h" //It needs to be before the windows.h file
 #include <windows.h>
@@ -149,7 +151,6 @@ int UMain()
     return 0;
 }
 
-// Should be able to run as a service on windows
 #ifdef _WINDOWS
 
 #define SERVICE_NAME L"F4MPService"
@@ -163,6 +164,7 @@ static DWORD WINAPI serviceWorkerThread(LPVOID lpParam)
 static void WINAPI serviceMain(DWORD argc, TCHAR** argv)
 {
     // service handle shit, set state and so on
+    // TODO: This
 }
 
 #endif
@@ -196,25 +198,29 @@ int main(int argc, char** argv)
         exit(0);
     }
 
-    nlohmann::json Config;
+    Config config = Config::getInstance();
     std::ifstream InConfig { ConfigLocation };
-    InConfig >> Config;
+    InConfig >> config.JSON;
 
     // If windows, and configured too, attempt to run as a service
-    // TODO: Something similar with linux daemons
-    if (Config["run-as-service"] == true)
+    if (Config::getInstance().JSON["run-as-service"] == true)
     {
 #ifdef _WINDOWS // Use windows service
+
         std::cout << "Starting as windows service" << std::endl;
+
         SERVICE_TABLE_ENTRY ServiceTable[] = {
             { reinterpret_cast<LPSTR>(SERVICE_NAME), (LPSERVICE_MAIN_FUNCTION)serviceMain },
             { nullptr, nullptr }
         };
+
         if (StartServiceCtrlDispatcher(ServiceTable) == false)
         {
             std::cout << "ERROR: Failed to start as a service, resuming" << std::endl;
         }
+
 #else // UNIX daemon
+
         std::cout << "Starting as UNIX daemon" << std::endl;
 
         pid_t Pid fork();
@@ -231,12 +237,14 @@ int main(int argc, char** argv)
         }
 
         close(STDIN_FILENO);
-		close(STDOUT_FILENO);
+        close(STDOUT_FILENO);
 		close(STDERR_FILENO);
 
 		UMain();
+
 #endif
     }
+
 
     return UMain();
 }
