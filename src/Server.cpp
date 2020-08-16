@@ -1,22 +1,27 @@
 #include "Server.hpp"
 
 #include <iostream>
-
-#include "slikenet/BitStream.h"
 #include <cstdlib> // For atoi
 #include <cstring> // For strlen
+#include <cassert>
+
+#include "slikenet/BitStream.h"
 #include "slikenet/Rand.h"
 #include "slikenet/statistics.h"
 #include "slikenet/MessageIdentifiers.h"
 #include <cstdio>
 #include "slikenet/Kbhit.h"
 #include "slikenet/GetTime.h"
-#include <cassert>
 #include "slikenet/sleep.h"
 #include "slikenet/Gets.h"
 #include "slikenet/linux_adapter.h"
 
 #include "Config.hpp"
+
+#define RANDOM_DATA_SIZE_1 50
+char randomData1[RANDOM_DATA_SIZE_1];
+#define RANDOM_DATA_SIZE_2 100
+char randomData2[RANDOM_DATA_SIZE_2];
 
 using namespace SLNet;
 
@@ -33,7 +38,7 @@ void Server::Start(void)
     bool b = peer->Startup((unsigned short) 600,&socketDescriptor,1)== SLNet::RAKNET_STARTED;
     RakAssert(b);
     if(b)
-        std::cout << "Server has started sucesfull on port 2001" << std::endl;
+        std::cout << "Server has started sucesfull on port " << Config::getInstance().JSON["port"] << std::endl;
     else
         std::cout << "Server has failed to start "<< std::endl;
     peer->SetMaximumIncomingConnections(Config::getInstance().JSON["player-limit"]);

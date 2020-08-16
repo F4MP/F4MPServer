@@ -68,5 +68,5 @@ endif (WIN32)
 
 target_link_libraries(${executable}
 	${CMAKE_DL_LIBS}
-		${CMAKE_SOURCE_DIR}/lib/*
+	${CMAKE_SOURCE_DIR}/lib/*
 )

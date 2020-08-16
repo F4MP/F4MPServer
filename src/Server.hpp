@@ -13,11 +13,6 @@
 
 using namespace SLNet;
 
-#define RANDOM_DATA_SIZE_1 50
-char randomData1[RANDOM_DATA_SIZE_1];
-#define RANDOM_DATA_SIZE_2 100
-char randomData2[RANDOM_DATA_SIZE_2];
-
 class Server
 {
 public:
