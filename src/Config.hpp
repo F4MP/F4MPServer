@@ -17,8 +17,8 @@ public:
     nlohmann::json JSON;
 
     // Omit copy constructor(s)
-    Singleton(Singleton const&) = delete;
-    void operator=(Singleton const&) = delete;
+    Config(Config const&) = delete;
+    void operator=(Config const&) = delete;
 };
 
 #endif
