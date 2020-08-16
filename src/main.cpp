@@ -50,7 +50,6 @@ int UMain()
             printf("Logging server statistics\n");
             char text[2048];
 
-            //TODO : You need to get the NUM_CLIENTS from the config file
             for (int i = 0; i < Config::getInstance().JSON["player-limit"]; i++) {
                 RakNetStatistics *rssSender;
                 rssSender = server.peer->GetStatistics(server.peer->GetSystemAddressFromIndex(i));
