@@ -11,19 +11,22 @@ set(IncludeDIR ./include)
 add_definitions(-D_RESOURCES="${CMAKE_SOURCE_DIR}/resources/")
 message(${CMAKE_SOURCE_DIR}/resources)
 
+# Project definitions
+
 if (UNIX)
-	# set(CMAKE_BUILD_TYPE Debug)
-	# set(CMAKE_CXX_FLAGS "-Ofast")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 endif(UNIX)
+
+# Include Dependencies
+
+set(THREADS_PREFER_PTHREAD_FLAD ON)
+find_package(Threads REQUIRED)
 
 if (WIN32)
 	# set(CMAKE_CXX_FLAGS "/Ox")
 	include_directories(${executable}
 	)
 endif (WIN32)
-
-set(THREADS_PREFER_PTHREAD_FLAD ON)
-find_package(Threads REQUIRED)
 
 if (UNIX)
 	include_directories(${executable}
@@ -34,8 +37,12 @@ include_directories(${executable}
 	${IncludeDIR}
 )
 
+# Building
+
 file(GLOB SourceFiles 
 	${SrcDIR}/*
+	${SrcDIR}/ThirdParty/*
+	${SrcDIR}/ThirdParty/nlohmann*
 )
 
 add_executable(${executable} ${SourceFiles})
@@ -45,7 +52,8 @@ set_target_properties(${executable} PROPERTIES
 	CXX_EXTENSIONS ON
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+
+# Link Dependencies
 
 if (UNIX)
 	target_link_libraries(${executable}
