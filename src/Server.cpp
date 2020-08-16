@@ -1,5 +1,7 @@
 #include "Server.hpp"
 
+#include <iostream>
+
 #include "slikenet/BitStream.h"
 #include <cstdlib> // For atoi
 #include <cstring> // For strlen
@@ -15,6 +17,8 @@
 #include "slikenet/linux_adapter.h"
 
 #include "Config.hpp"
+
+using namespace SLNet;
 
 Server::Server()
 {

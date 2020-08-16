@@ -1,8 +1,15 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <cassert>
 
 #include "ThirdParty/nlohmann/json.hpp"
+
+#include "slikenet/GetTime.h"
+#include "slikenet/sleep.h"
+#include "slikenet/Gets.h"
+#include "slikenet/linux_adapter.h"
+#include "slikenet/statistics.h"
 
 #include "Config.hpp"
 #include "Server.hpp"
@@ -16,8 +23,10 @@
 #include <unistd.h>
 #endif
 
-// TODO: We need a logging library, ill make one just it aint instant, which NEEDS to include file logging due to services/daemon
+// TODO: We need a logging library, ill make one just it aint instant,
+// which NEEDS to include file logging due to services/daemon
 
+using namespace SLNet;
 
 // Program main, called by actual main or by the daemon / service
 int UMain()
@@ -42,7 +51,7 @@ int UMain()
             char text[2048];
 
             //TODO : You need to get the NUM_CLIENTS from the config file
-            for (int i = 0; i < NUM_CLIENTS; i++) {
+            for (int i = 0; i < Config::getInstance().JSON["player-limit"]; i++) {
                 RakNetStatistics *rssSender;
                 rssSender = server.peer->GetStatistics(server.peer->GetSystemAddressFromIndex(i));
                 StatisticsToString(rssSender, text, 2048, 3);
@@ -100,7 +109,7 @@ int main(int argc, char** argv)
         exit(0);
     }
 
-    Config config = Config::getInstance();
+    Config& config = Config::getInstance();
     std::ifstream InConfig { ConfigLocation };
     InConfig >> config.JSON;
 
