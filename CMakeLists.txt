@@ -7,9 +7,23 @@ set(executable F4MPServer)
 set(SrcDIR ./src)
 set(IncludeDIR ./include)
 
-# Setting resource path
+# Setting build information and resource path for the program
+
 add_definitions(-D_RESOURCES="${CMAKE_SOURCE_DIR}/resources/")
 message(${CMAKE_SOURCE_DIR}/resources)
+
+execute_process(COMMAND git log --pretty=format:'%h' -n 1
+                OUTPUT_VARIABLE GIT_REV
+                ERROR_QUIET)
+
+add_definitions(-DGIT_VERSION="${GIT_REV}")
+
+string(TIMESTAMP BUILD_TIME "%Y-%m-%d %H:%M")
+add_definitions(-DBUILD_TIME="${BUILD_TIME}")
+
+add_definitions(-DVERSION_MAJOR="0")
+add_definitions(-DVERSION_MINOR="0")
+add_definitions(-DVERSION_PATCH="1")
 
 # Project definitions
 

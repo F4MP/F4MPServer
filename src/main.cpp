@@ -1,6 +1,7 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 #include <cassert>
 
 #include "ThirdParty/nlohmann/json.hpp"
@@ -86,10 +87,12 @@ int main(int argc, char** argv)
          << "F4MP  Copyright (C) 2020  Hyunsung Go, Benjamin Kyd\n"
          << "This program comes with ABSOLUTELY NO WARRANTY.\n"
          << "This is free software, and you are welcome to redistribute it\n"
-         << "under certain conditions; Read LICENSE for full details.\n" << std::endl << std::endl;
+         << "under certain conditions; Read LICENSE for full details." << std::endl << std::endl;
 
-
-
+    std::cout << "F4MP Build No." << GIT_VERSION << " Built " << BUILD_TIME << std::endl;
+    std::stringstream version;
+    version << "Release Version: " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
+    std::cout << version.str() << std::endl << std::endl << std::endl;
 
     std::filesystem::path ConfigLocation { "./config.json" };
     // Parse commandline
