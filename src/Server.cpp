@@ -109,30 +109,26 @@ Server::~Server()
 
 void Server::StartTelnet(SLNet::TransportInterface *transportInterface, unsigned short port, SLNet::RakPeerInterface *rakPeer)
 {
-    SLNet::ConsoleServer consoleServer;
-    SLNet::LogCommandParser lcp;
+
     SLNet::TimeMS lastLog=0;
 
     printf("Command server started on port %i.\n", port);
     consoleServer.AddCommandParser(&lcp);
 
     consoleServer.SetTransportProvider(transportInterface, port);
+
     consoleServer.SetPrompt("> "); // Show this character when waiting for user input
     lcp.AddChannel("TestChannel");
-    for(;;) {
+
+    for(;;){
         consoleServer.Update();
 
-        rakPeer->DeallocatePacket(rakPeer->Receive());
-
-        if (SLNet::GetTimeMS() > lastLog + 4000) {
-            lcp.WriteLog("TestChannel", "Test of logger");
-            lastLog = SLNet::GetTimeMS();
-        }
+        lcp.WriteLog("TestChannel", "Test of logger");
+    }
 
 #ifdef _WIN32
-        Sleep(30);
+    Sleep(30);
 #else
-        usleep( 30 * 1000 );
+    usleep( 30 * 1000 );
 #endif
-    }
 }

@@ -38,6 +38,8 @@ public:
     ~Server();
 
 public:
+    SLNet::ConsoleServer consoleServer;
+    SLNet::LogCommandParser lcp;
     SLNet::TransportInterface *transportInterface;
     SLNet::TimeMS nextSendTime;
     RakPeerInterface *peer;

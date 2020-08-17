@@ -41,9 +41,8 @@ int UMain()
 
     server.Start();
 
-    while(true) {
+    for(;;) {
         server.Update(time);
-
         int input;
 
         std::cin >> input;
