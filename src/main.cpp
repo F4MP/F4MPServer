@@ -88,6 +88,9 @@ int main(int argc, char** argv)
          << "This is free software, and you are welcome to redistribute it\n"
          << "under certain conditions; Read LICENSE for full details.\n" << std::endl << std::endl;
 
+
+
+
     std::filesystem::path ConfigLocation { "./config.json" };
     // Parse commandline
     // --config=""

@@ -6,7 +6,7 @@
 
 #### Dependencies 
 
-...
+[SLikeNet](https://cdn.discordapp.com/attachments/734738308521001000/744612603703066684/raknet_dist.zip)
 
 #### Building
 
@@ -21,9 +21,7 @@ With CLion, all you need to do is Open Project and navigate to the CMakeList and
 
 #### Dependencies
 
-[SLikeNet](https://cdn.discordapp.com/attachments/734738308521001000/744612603703066684/raknet_dist.zip)
-
-...
+Install slikenet through Vcpkg
  
 #### Building
 
