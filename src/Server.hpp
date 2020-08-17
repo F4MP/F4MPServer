@@ -27,7 +27,7 @@ public:
 
     void StartTelnet(SLNet::TransportInterface *transportInterface, unsigned short port, SLNet::RakPeerInterface *rakPeer);
 
-    bool IsBanned(const char * ip);
+    bool IsBanned(const char* ip);
 
     unsigned ConnectionCount(void) const;
 

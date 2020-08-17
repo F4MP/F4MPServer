@@ -107,6 +107,7 @@ int main(int argc, char** argv)
         Config["port"] = 7779;
         Config["run-as-service"] = false;
         Config["player-limit"] = 100;
+        Config["log-location"] = "./";
         std::ofstream o { ConfigLocation };
         o << std::setw(4) << Config << std::endl;
         std::cout << "ERROR: no config exists at " << ConfigLocation << ". One has been created" << std::endl;
