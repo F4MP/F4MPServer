@@ -33,10 +33,9 @@ Server::Server()
 
 void Server::Start(void)
 {
-    SLNet::SocketDescriptor socketDescriptor;
-    socketDescriptor.port=(unsigned short)Config::getInstance().JSON["port"];
+    SLNet::SocketDescriptor socketDescriptor((unsigned short)Config::getInstance().JSON["port"],Config::getInstance().JSON["ip"].get<std::string *>()->c_str());
+
     bool b = peer->Startup((unsigned short) 600,&socketDescriptor,1)== SLNet::RAKNET_STARTED;
-    RakAssert(b);
     if(b)
         std::cout << "Server has started successfully on port " << Config::getInstance().JSON["port"] << std::endl;
     else

@@ -51,7 +51,7 @@ int UMain()
             printf("Logging server statistics\n");
             char text[2048];
 
-            for (int i = 0; i < server.ConnectionCount(); i++) {
+            for (unsigned int i = 0; i < server.ConnectionCount(); i++) {
                 RakNetStatistics *rssSender;
                 rssSender = server.peer->GetStatistics(server.peer->GetSystemAddressFromIndex(i));
                 StatisticsToString(rssSender, text, 2048, 3);

@@ -19,7 +19,7 @@ public:
     Server();
 
     void Start(void);
-    
+
     bool IsBanned(const char * ip);
 
     unsigned ConnectionCount(void) const;
