@@ -44,6 +44,16 @@ void Server::Start(void)
     peer->SetMaximumIncomingConnections(Config::getInstance().JSON["player-limit"]);
 }
 
+/// Checks if a ip is banned
+/// \param ip
+/// \return bool (True if is banned, it can return false if the ip isn't the right format)
+bool Server::IsBanned(const char *ip) {
+    if(strlen(ip) > 16)
+        return false;
+
+    return peer->IsBanned(ip);
+}
+
 unsigned Server::ConnectionCount(void) const
 {
     unsigned short numberOfSystems;
@@ -59,6 +69,7 @@ void Server::Update(SLNet::TimeMS curTime)
         switch (p->data[0])
         {
             case ID_CONNECTION_LOST:
+                std::cout << "Connection lost" << std::endl;
             case ID_DISCONNECTION_NOTIFICATION:
             case ID_NEW_INCOMING_CONNECTION:
                 printf("Connections = %i\n", ConnectionCount());
