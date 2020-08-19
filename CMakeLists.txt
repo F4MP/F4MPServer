@@ -12,7 +12,7 @@ set(IncludeDIR ./include)
 add_definitions(-D_RESOURCES="${CMAKE_SOURCE_DIR}/resources/")
 message(${CMAKE_SOURCE_DIR}/resources)
 
-execute_process(COMMAND git log --pretty=format:'%h' -n 1
+execute_process(COMMAND git log --pretty=format:'%H' -n 1
                 OUTPUT_VARIABLE GIT_REV
                 ERROR_QUIET)
 

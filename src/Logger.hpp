@@ -5,6 +5,7 @@
 #include <sstream>
 #include <thread>
 #include <atomic>
+#include <condition_variable>
 #include <queue>
 
 
@@ -107,16 +108,23 @@ public:
 
 	void InitializeLoggingThread();
 
+	Logger& operator<< (const Logger& l);
+
+
+
 	~Logger();
 
 public:
 
+	std::condition_variable _TaskEnqueued;
 	std::queue<LogEntity*> _LogQueue;
 	std::atomic<bool> _IsRunning;
 
 private:
 
-	std::thread* _LoggingThread;
+	std::ostream 
+
+	std::thread* _OutputWorker;
 
 };
 
