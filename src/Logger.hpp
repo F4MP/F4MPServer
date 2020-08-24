@@ -1,6 +1,7 @@
 #ifndef F4MPSERVER_LOGGER_H_
 #define F4MPSERVER_LOGGER_H_
 
+#include <iostream>
 #include <string>
 #include <sstream>
 #include <thread>
@@ -80,6 +81,7 @@ namespace ELogType
 {
 	enum Type : uint8_t
 	{
+		NONE,
 		INFO,
 		DEBUG,
 		WARN,
@@ -108,21 +110,127 @@ public:
 
 	void InitializeLoggingThread();
 
-	Logger& operator<< (const Logger& l);
+	template<typename T>
+	void LogElement(T t)
+	{
+		if constexpr (std::is_same<char, T>::value)
+		{
+			char p = static_cast<char>(t);
+			if (p == '\n') std::cout << p; return;
+		}
+		std::cout << t << " ";
+	}
 
+	// Basic log doesn't use the logthread so
+	// can be used before the thread is setup
+	// unless it is already ready
+	template<typename... Args>
+	void BasicLog(Args... args)
+	{
+		if (_IsRunning)
+		{
+			Log(args...);
+			return;
+		}
+		(LogElement(args), ...);
+		LogElement('\n');
+	}
 
+	template<typename... Args>
+	void Log(Args... args)
+	{
+		if (!_IsRunning) return;
+		std::stringstream s;
+		_FillStringStream(s, args...);
+		LogEntity* e = new LogEntity{ s.str(), ELogType::NONE };
+
+		_QueueLock.lock();
+		_LogQueue.push(e);
+		_QueueLock.unlock();
+
+		_TaskEnqueued.notify_all();
+	}
+
+	template<typename... Args>
+	void Log(ELogType::Type type, Args... args)
+	{
+		if (!_IsRunning) return;
+		std::stringstream s;
+		_FillStringStream(s, args...);
+		LogEntity* e = new LogEntity{ s.str(), type };
+
+		_QueueLock.lock();
+		_LogQueue.push(e);
+		_QueueLock.unlock();
+
+		_TaskEnqueued.notify_all();
+	}
+
+	template<typename... Args>
+	void Info(Args... args)
+	{
+		if (!_IsRunning) return;
+		Log(ELogType::INFO, args...);
+	}
+
+	template<typename... Args>
+	void Debug(Args... args)
+	{
+		if (!_IsRunning) return;
+		Log(ELogType::DEBUG, args...);
+	}
+
+	template<typename... Args>
+	void Warn(Args... args)
+	{
+		if (!_IsRunning) return;
+		Log(ELogType::WARN, args...);
+	}
+
+	template<typename... Args>
+	void Error(Args... args)
+	{
+		if (!_IsRunning) return;
+		Log(ELogType::ERR, args...);
+	}
+
+	template<typename... Args>
+	void Panic(Args... args)
+	{
+		if (!_IsRunning) return;
+		Log(ELogType::PANIC, args...);
+	}
 
 	~Logger();
 
 public:
 
 	std::condition_variable _TaskEnqueued;
+	std::mutex _TaskConditionLock;
 	std::queue<LogEntity*> _LogQueue;
-	std::atomic<bool> _IsRunning;
+	std::mutex _QueueLock;
+	std::atomic<bool> _IsRunning = false;
+
+protected:
+
+	std::string _GetLogTimeString();
+	std::string _LogInfoString();
+	std::string _LogDebugString();
+	std::string _LogWarnString();
+	std::string _LogErrorString();
+	std::string _LogPanictring();
 
 private:
 
-	std::ostream 
+	template <typename T, typename... A>
+	void _FillStringStream(std::stringstream& s, T head, A... a)
+	{
+		s << head << ' ';
+		if constexpr (sizeof...(a))
+		{
+			_FillStringStream(s, a...);
+		}
+	}
 
 	std::thread* _OutputWorker;
 

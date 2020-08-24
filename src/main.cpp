@@ -14,6 +14,7 @@
 
 #include "Config.hpp"
 #include "Server.hpp"
+#include "Logger.hpp"
 
 #ifdef _WINDOWS
 #include "slikenet/WindowsIncludes.h" //It needs to be before the windows.h file
@@ -24,14 +25,15 @@
 #include <unistd.h>
 #endif
 
-// TODO: We need a logging library, ill make one just it aint instant,
-// which NEEDS to include file logging due to services/daemon
-
 using namespace SLNet;
 
 // Program main, called by actual main or by the daemon / service
 int UMain()
 {
+    Logger& _Logger = Logger::getInstance();
+    _Logger.InitializeLoggingThread();
+    _Logger.Log("bruh", "hello", 1.23, 2);
+
     std::cout << "Initializing..." << std::endl;
 
     Server server;
@@ -81,17 +83,18 @@ static void WINAPI serviceMain(DWORD argc, TCHAR** argv)
 
 int main(int argc, char** argv)
 {
+    Logger& _Logger = Logger::getInstance();
     // Welcome message
-    std::cout
-         << "F4MP  Copyright (C) 2020  Hyunsung Go, Benjamin Kyd\n"
-         << "This program comes with ABSOLUTELY NO WARRANTY.\n"
-         << "This is free software, and you are welcome to redistribute it\n"
-         << "under certain conditions; Read LICENSE for full details." << std::endl << std::endl;
+    _Logger.BasicLog(
+            std::string("F4MP  Copyright (C) 2020  Hyunsung Go, Benjamin Kyd\n") +
+            std::string("This program comes with ABSOLUTELY NO WARRANTY.\n") +
+            std::string("This is free software, and you are welcome to redistribute it\n") +
+            std::string("under certain conditions; Read LICENSE for full details.\n\n"));
 
-    std::cout << "F4MP Build No." << GIT_VERSION << " Built " << BUILD_TIME << std::endl;
+    _Logger.BasicLog("F4MP Build No.", GIT_VERSION, "Built", BUILD_TIME);
     std::stringstream version;
     version << "Release Version: " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
-    std::cout << version.str() << std::endl << std::endl << std::endl;
+    _Logger.BasicLog(version.str(), "\n\n");
 
     std::filesystem::path ConfigLocation { "./config.json" };
     // Parse commandline
@@ -110,7 +113,7 @@ int main(int argc, char** argv)
         Config["log-location"] = "./";
         std::ofstream o { ConfigLocation };
         o << std::setw(4) << Config << std::endl;
-        std::cout << "ERROR: no config exists at " << ConfigLocation << ". One has been created" << std::endl;
+        _Logger.BasicLog("ERROR: no config exists at", ConfigLocation, ". One has been created");
         exit(0);
     }
 
@@ -122,8 +125,7 @@ int main(int argc, char** argv)
     if (Config::getInstance().JSON["run-as-service"] == true)
     {
 #ifdef _WINDOWS // Use windows service
-
-        std::cout << "Starting as windows service" << std::endl;
+        _Logger.BasicLog("Starting as windows service");
 
         SERVICE_TABLE_ENTRY ServiceTable[] = {
             { reinterpret_cast<LPSTR>(SERVICE_NAME), (LPSERVICE_MAIN_FUNCTION)serviceMain },
@@ -131,24 +133,20 @@ int main(int argc, char** argv)
         };
 
         if (StartServiceCtrlDispatcher(ServiceTable) == false)
-        {
-            std::cout << "ERROR: Failed to start as a service, resuming" << std::endl;
-        }
+            _Logger.BasicLog("ERROR: Failed to start as a service, resuming");
 
 #else // UNIX daemon
 
-        std::cout << "Starting as UNIX daemon" << std::endl;
+        _Logger.BasicLog("Starting as UNIX daemon");
 
         pid_t Pid fork();
         if (pid < 0)
-        {
-            std::cout << "ERROR: Failed to start fork process, resuming" << std::endl;
-        }
+            _Logger.BasicLog("ERROR: Failed to start fork process, resuming");
 
         // if this process is the parent, cease exicution
         if (pid > 0)
         {
-            std::cout << "Parent process terminating" << std::endl;
+            _Logger.BasicLog("Parent process terminating");
             exit(0);
         }
 
