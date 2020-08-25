@@ -8,7 +8,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <queue>
-
+#include <map>
 
 #ifdef _WINDOWS
 #include <Windows.h>
@@ -136,6 +136,16 @@ public:
 		LogElement('\n');
 	}
 
+	void FastLog(std::string args)
+	{
+		if (!_IsRunning) return;
+		_QueueLock.lock();
+		_LogQueue.push(new LogEntity{ args, ELogType::NONE });
+		_QueueLock.unlock();
+
+		_TaskEnqueued.notify_all();
+	}
+
 	template<typename... Args>
 	void Log(Args... args)
 	{
@@ -206,7 +216,6 @@ public:
 public:
 
 	std::condition_variable _TaskEnqueued;
-	std::mutex _TaskConditionLock;
 	std::queue<LogEntity*> _LogQueue;
 	std::mutex _QueueLock;
 	std::atomic<bool> _IsRunning = false;
