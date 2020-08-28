@@ -16,6 +16,8 @@
 #include <arpa/inet.h>
 #endif
 
+#include "./Logger.hpp"
+
 using namespace SLNet;
 
 class Server
@@ -33,8 +35,6 @@ public:
 
     void Update(SLNet::TimeMS curTime);
 
-
-
     ~Server();
 
 public:
@@ -43,6 +43,11 @@ public:
     SLNet::TransportInterface *transportInterface;
     SLNet::TimeMS nextSendTime;
     RakPeerInterface *peer;
+
+private:
+
+    Logger& _Logger;
+
 };
 
 #endif

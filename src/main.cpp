@@ -16,7 +16,7 @@
 #include "Server.hpp"
 #include "Logger.hpp"
 
-#ifdef _WINDOWS
+#if defined(_WINDOWS)
 #include "slikenet/WindowsIncludes.h" //It needs to be before the windows.h file
 #include <windows.h>
 #include <libloaderapi.h> // Sleep64
@@ -32,9 +32,7 @@ int UMain()
 {
     Logger& _Logger = Logger::getInstance();
     _Logger.InitializeLoggingThread();
-    _Logger.Log("bruh", "hello", 1.23, 2);
-
-    std::cout << "Initializing..." << std::endl;
+    _Logger.Info("Initializing...");
 
     Server server;
 
@@ -49,14 +47,14 @@ int UMain()
 
         std::cin >> input;
         if(input == 0) {
-            printf("Logging server statistics\n");
+            _Logger.Info("Logging server statistics");
             char text[2048];
 
             for (unsigned int i = 0; i < server.ConnectionCount(); i++) {
                 RakNetStatistics *rssSender;
                 rssSender = server.peer->GetStatistics(server.peer->GetSystemAddressFromIndex(i));
                 StatisticsToString(rssSender, text, 2048, 3);
-                std::cout << text << std::endl;
+                _Logger.Log(text);
             }
         }
     }
@@ -64,7 +62,7 @@ int UMain()
     return 0;
 }
 
-#ifdef _WINDOWS
+#if defined(_WINDOWS)
 #define SERVICE_NAME L"F4MPService"
 
 static DWORD WINAPI serviceWorkerThread(LPVOID lpParam)
@@ -83,8 +81,8 @@ static void WINAPI serviceMain(DWORD argc, TCHAR** argv)
 
 int main(int argc, char** argv)
 {
-    Logger& _Logger = Logger::getInstance();
     // Welcome message
+    Logger& _Logger = Logger::getInstance();
     _Logger.BasicLog(
             std::string("F4MP  Copyright (C) 2020  Hyunsung Go, Benjamin Kyd\n") +
             std::string("This program comes with ABSOLUTELY NO WARRANTY.\n") +
@@ -102,7 +100,6 @@ int main(int argc, char** argv)
     // etc
 
     // Load config
-
     if (!std::filesystem::exists(ConfigLocation))
     {
         nlohmann::json Config;
@@ -110,7 +107,7 @@ int main(int argc, char** argv)
         Config["port"] = 7779;
         Config["run-as-service"] = false;
         Config["player-limit"] = 100;
-        Config["log-location"] = "./";
+        Config["log-location"] = "./logs.log"; // or NONE
         std::ofstream o { ConfigLocation };
         o << std::setw(4) << Config << std::endl;
         _Logger.BasicLog("ERROR: no config exists at", ConfigLocation, ". One has been created");
@@ -121,10 +118,14 @@ int main(int argc, char** argv)
     std::ifstream InConfig { ConfigLocation };
     InConfig >> config.JSON;
 
+    std::string logloc = config.JSON["log-location"];
+    if (logloc != "NONE")
+        _Logger.InitializeFileLogging({ logloc });
+
     // If windows, and configured too, attempt to run as a service
     if (Config::getInstance().JSON["run-as-service"] == true)
     {
-#ifdef _WINDOWS // Use windows service
+#if defined(_WINDOWS) // Use windows service
         _Logger.BasicLog("Starting as windows service");
 
         SERVICE_TABLE_ENTRY ServiceTable[] = {
@@ -136,7 +137,6 @@ int main(int argc, char** argv)
             _Logger.BasicLog("ERROR: Failed to start as a service, resuming");
 
 #else // UNIX daemon
-
         _Logger.BasicLog("Starting as UNIX daemon");
 
         pid_t Pid fork();

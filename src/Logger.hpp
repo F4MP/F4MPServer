@@ -1,7 +1,9 @@
 #ifndef F4MPSERVER_LOGGER_H_
 #define F4MPSERVER_LOGGER_H_
 
+#include <filesystem>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <sstream>
 #include <thread>
@@ -10,7 +12,9 @@
 #include <queue>
 #include <map>
 
-#ifdef _WINDOWS
+#include "Config.hpp"
+
+#if defined(_WINDOWS)
 #include <Windows.h>
 namespace EConsoleColour
 {
@@ -71,6 +75,31 @@ namespace EConsoleColour
 }
 #endif
 
+class Colour
+{
+public:
+	static inline void ResetColour()
+	{
+#if defined(_WINDOWS)
+		SetConsoleTextAttribute(h, EConsoleColour::BG_DEFAULT);
+		SetConsoleTextAttribute(h, EConsoleColour::FG_DEFAULT);
+#else
+	std::cout
+		<< "\033[" << CONSOLE_COLOUR_BG_DEFAULT << "m"
+		<< "\033[" << CONSOLE_COLOUR_FG_DEFAULT << "m";
+#endif
+	}
+
+	template<typename T>
+	static inline void ConsoleColour(T colour)
+	{
+#if defined(_WINDOWS)
+		SetConsoleTextAttribute(h, colour);
+#else
+		std::cout << "\033[" << colour << "m";
+#endif
+	}
+};
 
 class LogManager
 {
@@ -96,6 +125,7 @@ struct LogEntity
 	ELogType::Type Type;
 };
 
+// Config must be loaded first
 class Logger
 {
 public:
@@ -108,6 +138,7 @@ public:
 		return instance;
 	}
 
+	void InitializeFileLogging(std::filesystem::path path);
 	void InitializeLoggingThread();
 
 	template<typename T>
@@ -220,21 +251,15 @@ public:
 	std::mutex _QueueLock;
 	std::atomic<bool> _IsRunning = false;
 
-protected:
-
-	std::string _GetLogTimeString();
-	std::string _LogInfoString();
-	std::string _LogDebugString();
-	std::string _LogWarnString();
-	std::string _LogErrorString();
-	std::string _LogPanictring();
+	std::atomic<bool> _HasFileHandle = false;
+	std::ofstream _FileOutput;
 
 private:
 
 	template <typename T, typename... A>
 	void _FillStringStream(std::stringstream& s, T head, A... a)
 	{
-		s << head << ' ';
+		s << head;// << ' ';
 		if constexpr (sizeof...(a))
 		{
 			_FillStringStream(s, a...);

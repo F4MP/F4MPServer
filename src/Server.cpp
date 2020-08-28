@@ -26,6 +26,7 @@ char randomData2[RANDOM_DATA_SIZE_2];
 using namespace SLNet;
 
 Server::Server()
+    : _Logger(Logger::getInstance())
 {
     peer = SLNet::RakPeerInterface::GetInstance();
     transportInterface = SLNet::TelnetTransport::GetInstance();
@@ -35,13 +36,14 @@ Server::Server()
 
 void Server::Start(void)
 {
-    SLNet::SocketDescriptor socketDescriptor((unsigned short)Config::getInstance().JSON["port"],Config::getInstance().JSON["ip"].get<std::string *>()->c_str());
+    _Logger.Info("Starting up server");
+    SLNet::SocketDescriptor socketDescriptor(static_cast<uint16_t>(Config::getInstance().JSON["port"]), static_cast<std::string>(Config::getInstance().JSON["ip"]).c_str());
 
     bool b = peer->Startup((unsigned short) 600,&socketDescriptor,1)== SLNet::RAKNET_STARTED;
-    if(b)
-        std::cout << "Server has started successfully on port " << Config::getInstance().JSON["port"] << std::endl;
+    if (b)
+        _Logger.Info("Server has started successfully on port ", Config::getInstance().JSON["port"]);
     else
-        std::cout << "Server has failed to start "<< std::endl;
+        _Logger.Panic("Server has failed to start");
     peer->SetMaximumIncomingConnections(Config::getInstance().JSON["player-limit"]);
 
     Server::StartTelnet(transportInterface, 32 ,Server::peer);
@@ -72,10 +74,10 @@ void Server::Update(SLNet::TimeMS curTime)
         switch (p->data[0])
         {
             case ID_CONNECTION_LOST:
-                std::cout << "Connection lost" << std::endl;
+                _Logger.Warn("Connection lost");
             case ID_DISCONNECTION_NOTIFICATION:
             case ID_NEW_INCOMING_CONNECTION:
-                printf("Connections = %i\n", ConnectionCount());
+                _Logger.Debug("Connections = ", ConnectionCount());
                 break;
 // 				case ID_USER_PACKET_ENUM:
 // 					{
@@ -112,7 +114,7 @@ void Server::StartTelnet(SLNet::TransportInterface *transportInterface, unsigned
 
     SLNet::TimeMS lastLog=0;
 
-    printf("Command server started on port %i.\n", port);
+    _Logger.Info("Command server started on port ", port);
     consoleServer.AddCommandParser(&lcp);
 
     consoleServer.SetTransportProvider(transportInterface, port);
@@ -126,7 +128,7 @@ void Server::StartTelnet(SLNet::TransportInterface *transportInterface, unsigned
         lcp.WriteLog("TestChannel", "Test of logger");
     }
 
-#ifdef _WIN32
+#if defined(_WINDOWS)
     Sleep(30);
 #else
     usleep( 30 * 1000 );

@@ -6,7 +6,10 @@
 
 Logger::Logger()
 {
-
+#if defined(_WINDOWS)
+	GetConsoleScreenBufferInfo(h, &csbiInfo);
+	wOldColorAttrs = csbiInfo.wAttributes;
+#endif
 }
 
 constexpr const char* magic(ELogType::Type e)
@@ -39,14 +42,58 @@ void OutputWorker(Logger* _Logger)
 		auto tm = *std::localtime(&t);
 
 		std::ostringstream oss;
-		oss << "[" << std::put_time(&tm, "%d-%m-%Y %H:%M:%S") << "]";
+		oss << "[" << std::put_time(&tm, "%d-%m-%Y %H:%M:%S") << "] ";
 		
+		if (entity->Type == ELogType::NONE)
+		{
+			oss << entity->Message;
+			std::cout << oss.str() << std::endl;
+			if (_Logger->_HasFileHandle) _Logger->_FileOutput << oss.str() << std::endl;
+			delete entity;
+			continue;
+		}
+		
+		oss << "[";
+		std::cout << oss.str();
 
+		switch (entity->Type)
+		{
+		case ELogType::INFO:
+			Colour::ConsoleColour(EConsoleColour::FG_GREEN);
+			break;
+		case ELogType::DEBUG:
+			Colour::ConsoleColour(EConsoleColour::FG_BLUE);
+			break;
+		case ELogType::WARN:
+			Colour::ConsoleColour(EConsoleColour::FG_YELLOW);
+			break;
+		case ELogType::ERR:
+			Colour::ConsoleColour(EConsoleColour::FG_LIGHT_RED);
+			break;
+		case ELogType::PANIC:
+			Colour::ConsoleColour(EConsoleColour::FG_RED);
+			break;
+		}
 
-		std::cout << oss.str() << std::endl;
+		std::cout << magic(entity->Type);
+		Colour::ResetColour();
+		std::cout << "] " << entity->Message << std::endl;
+
+		if (_Logger->_HasFileHandle) 
+			_Logger->_FileOutput << oss.str() << magic(entity->Type) << "]" << entity->Message << std::endl;
+
+		if (entity->Type == ELogType::PANIC) delete entity; exit(0);
 
 		delete entity;
 	}
+}
+
+void Logger::InitializeFileLogging(std::filesystem::path path)
+{
+	if (_HasFileHandle) return;
+	_FileOutput = std::ofstream();
+	_FileOutput.open(static_cast<std::string>(Config::getInstance().JSON["log-location"]), std::ios_base::app);
+	_HasFileHandle = true;
 }
 
 void Logger::InitializeLoggingThread()
@@ -62,5 +109,6 @@ Logger::~Logger()
 	_IsRunning = false;
 	_OutputWorker->join();
 
-	delete _OutputWorker;
+	if (_OutputWorker != nullptr)
+		delete _OutputWorker;
 }
