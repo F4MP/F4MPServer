@@ -123,7 +123,7 @@ void Server::StartTelnet(SLNet::TransportInterface *transportInterface, unsigned
     consoleServer.SetPrompt("> "); // Show this character when waiting for user input
     lcp.AddChannel("TestChannel");
 
-    for(;;){
+    for(;;) {
         consoleServer.Update();
 
         lcp.WriteLog("TestChannel", "Test of logger");

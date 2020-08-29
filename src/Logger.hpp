@@ -10,7 +10,6 @@
 #include <atomic>
 #include <condition_variable>
 #include <queue>
-#include <map>
 
 #include "Config.hpp"
 

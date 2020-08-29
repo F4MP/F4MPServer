@@ -10,6 +10,10 @@ class Config
 public:
     Config() {}
 
+    // Omit copy constructor(s)
+    Config(Config const&) = delete;
+    void operator=(Config const&) = delete;
+
     static Config& getInstance()
     {
         static Config instance;
@@ -40,11 +44,6 @@ public:
 
     nlohmann::json JSON;
 
-public:
-
-    // Omit copy constructor(s)
-    Config(Config const&) = delete;
-    void operator=(Config const&) = delete;
 };
 
 #endif

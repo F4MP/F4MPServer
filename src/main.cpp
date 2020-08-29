@@ -52,7 +52,7 @@ int UMain()
         int input;
 
         std::cin >> input;
-        if(input == 0) {
+        if(input == '0') {
             _Logger.Info("Logging server statistics");
             char text[2048];
 
@@ -60,7 +60,7 @@ int UMain()
                 RakNetStatistics *rssSender;
                 rssSender = server.peer->GetStatistics(server.peer->GetSystemAddressFromIndex(i));
                 StatisticsToString(rssSender, text, 2048, 3);
-                _Logger.Log(text);
+                _Logger.Debug(text);
             }
         }
     }

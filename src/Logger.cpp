@@ -99,7 +99,7 @@ void Logger::InitializeFileLogging(std::filesystem::path path)
 {
 	if (_HasFileHandle) return;
 	_FileOutput = std::ofstream();
-	_FileOutput.open(static_cast<std::string>(Config::getInstance().JSON["log-location"]), std::ios_base::app);
+	_FileOutput.open(static_cast<std::string>(Config::getInstance().LogLocation), std::ios_base::app);
 	_HasFileHandle = true;
 }
 
