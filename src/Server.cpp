@@ -37,14 +37,15 @@ Server::Server()
 void Server::Start(void)
 {
     _Logger.Info("Starting up server");
-    SLNet::SocketDescriptor socketDescriptor(static_cast<uint16_t>(Config::getInstance().JSON["port"]), static_cast<std::string>(Config::getInstance().JSON["ip"]).c_str());
+ 
+    SLNet::SocketDescriptor socketDescriptor(Config::getInstance().Port, Config::getInstance().Ip.c_str());
 
-    bool b = peer->Startup((unsigned short) 600,&socketDescriptor,1)== SLNet::RAKNET_STARTED;
+    bool b = peer->Startup((unsigned short)600, &socketDescriptor, 1) == SLNet::RAKNET_STARTED;
     if (b)
-        _Logger.Info("Server has started successfully on port ", Config::getInstance().JSON["port"]);
+        _Logger.Info("Server has started successfully on port ", Config::getInstance().Port);
     else
         _Logger.Panic("Server has failed to start");
-    peer->SetMaximumIncomingConnections(Config::getInstance().JSON["player-limit"]);
+    peer->SetMaximumIncomingConnections(Config::getInstance().PlayerLimit);
 
     Server::StartTelnet(transportInterface, 32 ,Server::peer);
 }

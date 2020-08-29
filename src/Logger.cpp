@@ -44,10 +44,14 @@ void OutputWorker(Logger* _Logger)
 		std::ostringstream oss;
 		oss << "[" << std::put_time(&tm, "%d-%m-%Y %H:%M:%S") << "] ";
 		
+		while (_Logger->_IsLogging) {}
+		_Logger->_IsLogging = true;
+
 		if (entity->Type == ELogType::NONE)
 		{
 			oss << entity->Message;
 			std::cout << oss.str() << std::endl;
+			_Logger->_IsLogging = false;
 			if (_Logger->_HasFileHandle) _Logger->_FileOutput << oss.str() << std::endl;
 			delete entity;
 			continue;
@@ -79,10 +83,13 @@ void OutputWorker(Logger* _Logger)
 		Colour::ResetColour();
 		std::cout << "] " << entity->Message << std::endl;
 
-		if (_Logger->_HasFileHandle) 
-			_Logger->_FileOutput << oss.str() << magic(entity->Type) << "]" << entity->Message << std::endl;
+		_Logger->_IsLogging = false;
 
-		if (entity->Type == ELogType::PANIC) delete entity; exit(0);
+		if (_Logger->_HasFileHandle) 
+			_Logger->_FileOutput << oss.str() << magic(entity->Type) << "] " << entity->Message << std::endl;
+
+		// TODO: This won't exit, i need it to exit the main thread
+		//if (entity->Type == ELogType::PANIC) delete entity; exit(0);
 
 		delete entity;
 	}

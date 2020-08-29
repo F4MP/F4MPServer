@@ -32,7 +32,13 @@ int UMain()
 {
     Logger& _Logger = Logger::getInstance();
     _Logger.InitializeLoggingThread();
+
+    _Logger.Log("F4MP Build No. ", GIT_VERSION, " Built ", BUILD_TIME);
+    std::stringstream version;
+    version << "Release Version: " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
+    _Logger.Log(version.str(), "\n\n");
     _Logger.Info("Initializing...");
+
 
     Server server;
 
@@ -83,16 +89,12 @@ int main(int argc, char** argv)
 {
     // Welcome message
     Logger& _Logger = Logger::getInstance();
+    Colour::ResetColour();
     _Logger.BasicLog(
             std::string("F4MP  Copyright (C) 2020  Hyunsung Go, Benjamin Kyd\n") +
             std::string("This program comes with ABSOLUTELY NO WARRANTY.\n") +
             std::string("This is free software, and you are welcome to redistribute it\n") +
             std::string("under certain conditions; Read LICENSE for full details.\n\n"));
-
-    _Logger.BasicLog("F4MP Build No.", GIT_VERSION, "Built", BUILD_TIME);
-    std::stringstream version;
-    version << "Release Version: " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
-    _Logger.BasicLog(version.str(), "\n\n");
 
     std::filesystem::path ConfigLocation { "./config.json" };
     // Parse commandline
@@ -114,16 +116,17 @@ int main(int argc, char** argv)
         exit(0);
     }
 
-    Config& config = Config::getInstance();
     std::ifstream InConfig { ConfigLocation };
-    InConfig >> config.JSON;
+    InConfig >> Config::getInstance().JSON;
+    Config::getInstance().Setup();
 
-    std::string logloc = config.JSON["log-location"];
+    // Settup logger
+    std::string logloc = Config::getInstance().LogLocation;
     if (logloc != "NONE")
         _Logger.InitializeFileLogging({ logloc });
 
     // If windows, and configured too, attempt to run as a service
-    if (Config::getInstance().JSON["run-as-service"] == true)
+    if (Config::getInstance().RunAsService == true)
     {
 #if defined(_WINDOWS) // Use windows service
         _Logger.BasicLog("Starting as windows service");

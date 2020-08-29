@@ -149,7 +149,7 @@ public:
 			char p = static_cast<char>(t);
 			if (p == '\n') std::cout << p; return;
 		}
-		std::cout << t << " ";
+		std::cout << t;
 	}
 
 	// Basic log doesn't use the logthread so
@@ -158,29 +158,35 @@ public:
 	template<typename... Args>
 	void BasicLog(Args... args)
 	{
-		if (_IsRunning)
-		{
-			Log(args...);
-			return;
-		}
+		while (_IsLogging) { }
+		_IsLogging = true;
 		(LogElement(args), ...);
 		LogElement('\n');
+		_IsLogging = false;
 	}
 
 	void FastLog(std::string args)
 	{
-		if (!_IsRunning) return;
+		if (!_IsRunning) 
+		{
+			BasicLog(args);
+			return;
+		}
 		_QueueLock.lock();
 		_LogQueue.push(new LogEntity{ args, ELogType::NONE });
 		_QueueLock.unlock();
 
-		_TaskEnqueued.notify_all();
+		_TaskEnqueued.notify_one();
 	}
 
 	template<typename... Args>
 	void Log(Args... args)
 	{
-		if (!_IsRunning) return;
+		if (!_IsRunning)
+		{
+			BasicLog(args...);
+			return;
+		}		
 		std::stringstream s;
 		_FillStringStream(s, args...);
 		LogEntity* e = new LogEntity{ s.str(), ELogType::NONE };
@@ -189,67 +195,75 @@ public:
 		_LogQueue.push(e);
 		_QueueLock.unlock();
 
-		_TaskEnqueued.notify_all();
-	}
-
-	template<typename... Args>
-	void Log(ELogType::Type type, Args... args)
-	{
-		if (!_IsRunning) return;
-		std::stringstream s;
-		_FillStringStream(s, args...);
-		LogEntity* e = new LogEntity{ s.str(), type };
-
-		_QueueLock.lock();
-		_LogQueue.push(e);
-		_QueueLock.unlock();
-
-		_TaskEnqueued.notify_all();
+		_TaskEnqueued.notify_one();
 	}
 
 	template<typename... Args>
 	void Info(Args... args)
 	{
-		if (!_IsRunning) return;
-		Log(ELogType::INFO, args...);
+		if (!_IsRunning)
+		{
+			BasicLog("INFO: ", args...);
+			return;
+		}
+		_Log(ELogType::INFO, args...);
 	}
 
 	template<typename... Args>
 	void Debug(Args... args)
 	{
-		if (!_IsRunning) return;
-		Log(ELogType::DEBUG, args...);
+		if (!_IsRunning)
+		{
+			BasicLog("DEBUG: ", args...);
+			return;
+		}
+		_Log(ELogType::DEBUG, args...);
 	}
 
 	template<typename... Args>
 	void Warn(Args... args)
 	{
-		if (!_IsRunning) return;
-		Log(ELogType::WARN, args...);
+		if (!_IsRunning)
+		{
+			BasicLog("WARN: ", args...);
+			return;
+		}
+		_Log(ELogType::WARN, args...);
 	}
 
 	template<typename... Args>
 	void Error(Args... args)
 	{
-		if (!_IsRunning) return;
-		Log(ELogType::ERR, args...);
+		if (!_IsRunning)
+		{
+			BasicLog("ERROR: ", args...);
+			return;
+		}
+		_Log(ELogType::ERR, args...);
 	}
 
 	template<typename... Args>
 	void Panic(Args... args)
 	{
-		if (!_IsRunning) return;
-		Log(ELogType::PANIC, args...);
+		if (!_IsRunning)
+		{
+			BasicLog("PANIC: ", args...);
+			exit(0);
+			return;
+		}
+		_Log(ELogType::PANIC, args...);
 	}
 
 	~Logger();
 
 public:
 
+	std::atomic<bool> _IsRunning = false;
+	
 	std::condition_variable _TaskEnqueued;
 	std::queue<LogEntity*> _LogQueue;
 	std::mutex _QueueLock;
-	std::atomic<bool> _IsRunning = false;
+	std::atomic<bool> _IsLogging = false;
 
 	std::atomic<bool> _HasFileHandle = false;
 	std::ofstream _FileOutput;
@@ -264,6 +278,20 @@ private:
 		{
 			_FillStringStream(s, a...);
 		}
+	}
+
+	template<typename... Args>
+	void _Log(ELogType::Type type, Args... args)
+	{
+		std::stringstream s;
+		_FillStringStream(s, args...);
+		LogEntity* e = new LogEntity{ s.str(), type };
+
+		_QueueLock.lock();
+		_LogQueue.push(e);
+		_QueueLock.unlock();
+
+		_TaskEnqueued.notify_one();
 	}
 
 	std::thread* _OutputWorker;
