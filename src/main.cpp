@@ -6,18 +6,12 @@
 
 #include "ThirdParty/nlohmann/json.hpp"
 
-#include "slikenet/GetTime.h"
-#include "slikenet/sleep.h"
-#include "slikenet/Gets.h"
-#include "slikenet/linux_adapter.h"
-#include "slikenet/statistics.h"
 
 #include "Config.hpp"
 #include "Server.hpp"
 #include "Logger.hpp"
 
 #if defined(_WINDOWS)
-#include "slikenet/WindowsIncludes.h" //It needs to be before the windows.h file
 #include <windows.h>
 #include <libloaderapi.h> // Sleep64
 #else
@@ -25,7 +19,6 @@
 #include <unistd.h>
 #endif
 
-using namespace SLNet;
 
 // Program main, called by actual main or by the daemon / service
 int UMain()
@@ -42,27 +35,11 @@ int UMain()
 
     Server server;
 
-    SLNet::TimeMS time = SLNet::GetTimeMS();
-    SLNet::TimeMS endTime = SLNet::GetTimeMS()+60000*5;
 
     server.Start();
 
     for(;;) {
-        server.Update(time);
-        int input;
 
-        std::cin >> input;
-        if(input == '0') {
-            _Logger.Info("Logging server statistics");
-            char text[2048];
-
-            for (unsigned int i = 0; i < server.ConnectionCount(); i++) {
-                RakNetStatistics *rssSender;
-                rssSender = server.peer->GetStatistics(server.peer->GetSystemAddressFromIndex(i));
-                StatisticsToString(rssSender, text, 2048, 3);
-                _Logger.Debug(text);
-            }
-        }
     }
 
     return 0;

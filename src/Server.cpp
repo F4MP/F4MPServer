@@ -7,13 +7,7 @@
 
 #include <cstdio>
 
-
 #include "Config.hpp"
-
-#define RANDOM_DATA_SIZE_1 50
-char randomData1[RANDOM_DATA_SIZE_1];
-#define RANDOM_DATA_SIZE_2 100
-char randomData2[RANDOM_DATA_SIZE_2];
 
 Server::Server()
     : _Logger(Logger::getInstance())
@@ -24,7 +18,6 @@ Server::Server()
 void Server::Start(void)
 {
     _Logger.Info("Starting up server");
- 
 
 //    bool b = peer->Startup((unsigned short)600, &socketDescriptor, 1) == SLNet::RAKNET_STARTED;
  //   if (b)

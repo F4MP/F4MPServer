@@ -8,9 +8,10 @@
 #include <arpa/inet.h>
 #endif
 
+#include <steam/isteamnetworkingsockets.h>
+
 #include "./Logger.hpp"
 
-using namespace SLNet;
 
 class Server
 {
@@ -26,7 +27,7 @@ public:
     ~Server();
 
 public:
-
+    ISteamNetworkingSockets * networkingSockets;
 
 private:
     Logger& _Logger;
