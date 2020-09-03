@@ -23,24 +23,8 @@
 // Program main, called by actual main or by the daemon / service
 int UMain()
 {
-    Logger& _Logger = Logger::getInstance();
-    _Logger.InitializeLoggingThread();
+    std::cout << "WOW" << std::endl;
 
-    _Logger.Log("F4MP Build No. ", GIT_VERSION, " Built ", BUILD_TIME);
-    std::stringstream version;
-    version << "Release Version: " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_PATCH;
-    _Logger.Log(version.str(), "\n\n");
-    _Logger.Info("Initializing...");
-
-
-    Server server;
-
-
-    server.Start();
-
-    for(;;) {
-
-    }
 
     return 0;
 }
@@ -64,21 +48,19 @@ static void WINAPI serviceMain(DWORD argc, TCHAR** argv)
 
 int main(int argc, char** argv)
 {
-    // Welcome message
-    Logger& _Logger = Logger::getInstance();
-    Colour::ResetColour();
+
+   /*
     _Logger.BasicLog(
             std::string("F4MP  Copyright (C) 2020  Hyunsung Go, Benjamin Kyd\n") +
             std::string("This program comes with ABSOLUTELY NO WARRANTY.\n") +
             std::string("This is free software, and you are welcome to redistribute it\n") +
-            std::string("under certain conditions; Read LICENSE for full details.\n\n"));
+            std::string("under certain conditions; Read LICENSE for full details.\n\n"));*/
 
     std::filesystem::path ConfigLocation { "./config.json" };
     // Parse commandline
     // --config=""
     // etc
-
-    // Load config
+    //
     if (!std::filesystem::exists(ConfigLocation))
     {
         nlohmann::json Config;
@@ -89,33 +71,30 @@ int main(int argc, char** argv)
         Config["log-location"] = "./logs.log"; // or NONE
         std::ofstream o { ConfigLocation };
         o << std::setw(4) << Config << std::endl;
-        _Logger.BasicLog("ERROR: no config exists at", ConfigLocation, ". One has been created");
+       //* _Logger.BasicLog("ERROR: no config exists at", ConfigLocation, ". One has been created");*//*
         exit(0);
     }
 
     std::ifstream InConfig { ConfigLocation };
+
     InConfig >> Config::getInstance().JSON;
+
     Config::getInstance().Setup();
-
-    // Settup logger
-    std::string logloc = Config::getInstance().LogLocation;
-    if (logloc != "NONE")
-        _Logger.InitializeFileLogging({ logloc });
-
+    std::cout << "WOW4" << std::endl;
     // If windows, and configured too, attempt to run as a service
     if (Config::getInstance().RunAsService == true)
     {
 #if defined(_WINDOWS) // Use windows service
-        _Logger.BasicLog("Starting as windows service");
-
+      /*  _Logger.BasicLog("Starting as windows service");
+*/
         SERVICE_TABLE_ENTRY ServiceTable[] = {
             { reinterpret_cast<LPSTR>(SERVICE_NAME), (LPSERVICE_MAIN_FUNCTION)serviceMain },
             { nullptr, nullptr }
         };
 
-        if (StartServiceCtrlDispatcher(ServiceTable) == false)
+       /* if (StartServiceCtrlDispatcher(ServiceTable) == false)
             _Logger.BasicLog("ERROR: Failed to start as a service, resuming");
-
+*/
 #else // UNIX daemon
         _Logger.BasicLog("Starting as UNIX daemon");
 

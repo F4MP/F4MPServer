@@ -27,7 +27,7 @@ public:
     ~Server();
 
 public:
-    ISteamNetworkingSockets * networkingSockets;
+   // ISteamNetworkingSockets * networkingSockets;
 
 private:
     Logger& _Logger;

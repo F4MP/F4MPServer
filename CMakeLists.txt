@@ -82,6 +82,6 @@ endif (WIN32)
 
 target_link_libraries(${executable}
 	${CMAKE_DL_LIBS}
-	${CMAKE_SOURCE_DIR}/lib/RakNetDLL.lib
 	${CMAKE_SOURCE_DIR}/lib/GameNetworkingSockets_s.lib
+	${CMAKE_SOURCE_DIR}/lib/spdlogd.lib
 )

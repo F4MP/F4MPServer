@@ -17,13 +17,6 @@ Server::Server()
 
 void Server::Start(void)
 {
-    _Logger.Info("Starting up server");
-
-//    bool b = peer->Startup((unsigned short)600, &socketDescriptor, 1) == SLNet::RAKNET_STARTED;
- //   if (b)
-   //     _Logger.Info("Server has started successfully on port ", Config::getInstance().Port);
-   // else
-    //    _Logger.Panic("Server has failed to start");
 
 }
 

@@ -1,6 +1,6 @@
 #ifndef F4MPSERVER_LOGGER_H_
 #define F4MPSERVER_LOGGER_H_
-
+//DEPRECATED
 #include <filesystem>
 #include <iostream>
 #include <fstream>
