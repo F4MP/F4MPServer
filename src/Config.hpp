@@ -3,8 +3,8 @@
 
 #include "./ThirdParty/nlohmann/json.hpp"
 
-#include "Logger.hpp"
 
+// READ ME : If you don't have a JSON Row the library tends to crash
 class Config
 {
 public:
@@ -29,10 +29,18 @@ public:
         LogLocation = JSON["log-location"];
     }
 
-    inline void Validate()
+    inline bool Validate()
     {
-        // TODO: This
+        return true;
     }
+
+
+    inline bool Exists(){
+            return std::filesystem::exists(ConfigLocation);
+    }
+
+    std::filesystem::path ConfigLocation { "./config.json" };
+
 
     std::string Ip;
     uint16_t Port;

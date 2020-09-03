@@ -3,13 +3,13 @@
 #include <fstream>
 #include <sstream>
 #include <cassert>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 #include "ThirdParty/nlohmann/json.hpp"
 
-
 #include "Config.hpp"
 #include "Server.hpp"
-#include "Logger.hpp"
 
 #if defined(_WINDOWS)
 #include <windows.h>
@@ -23,8 +23,6 @@
 // Program main, called by actual main or by the daemon / service
 int UMain()
 {
-    std::cout << "WOW" << std::endl;
-
 
     return 0;
 }
@@ -48,13 +46,14 @@ static void WINAPI serviceMain(DWORD argc, TCHAR** argv)
 
 int main(int argc, char** argv)
 {
+    auto console = spdlog::stdout_color_mt("console");
+    auto err_logger = spdlog::stderr_color_mt("stderr");
 
-   /*
-    _Logger.BasicLog(
-            std::string("F4MP  Copyright (C) 2020  Hyunsung Go, Benjamin Kyd\n") +
-            std::string("This program comes with ABSOLUTELY NO WARRANTY.\n") +
-            std::string("This is free software, and you are welcome to redistribute it\n") +
-            std::string("under certain conditions; Read LICENSE for full details.\n\n"));*/
+    spdlog::get("console")->info("F4MP  Copyright (C) 2020  Alin Octavian, Benjamin Kyd \n"
+                                 "This program comes with ABSOLUTELY NO WARRANTY. \n"
+                                 "This is free software, and you are welcome to redistribute it \n"
+                                 "\"under certain conditions; Read LICENSE for full details. \n \n");
+
 
     std::filesystem::path ConfigLocation { "./config.json" };
     // Parse commandline
@@ -71,7 +70,7 @@ int main(int argc, char** argv)
         Config["log-location"] = "./logs.log"; // or NONE
         std::ofstream o { ConfigLocation };
         o << std::setw(4) << Config << std::endl;
-       //* _Logger.BasicLog("ERROR: no config exists at", ConfigLocation, ". One has been created");*//*
+        spdlog::get("stderr")->error("ERROR: no config exists. One has been created");
         exit(0);
     }
 
@@ -80,13 +79,12 @@ int main(int argc, char** argv)
     InConfig >> Config::getInstance().JSON;
 
     Config::getInstance().Setup();
-    std::cout << "WOW4" << std::endl;
     // If windows, and configured too, attempt to run as a service
     if (Config::getInstance().RunAsService == true)
     {
 #if defined(_WINDOWS) // Use windows service
-      /*  _Logger.BasicLog("Starting as windows service");
-*/
+        spdlog::get("console")->info("Starting a Windows service");
+
         SERVICE_TABLE_ENTRY ServiceTable[] = {
             { reinterpret_cast<LPSTR>(SERVICE_NAME), (LPSERVICE_MAIN_FUNCTION)serviceMain },
             { nullptr, nullptr }
