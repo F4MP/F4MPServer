@@ -9,8 +9,8 @@ set(IncludeDIR ./include)
 
 # Setting build information and resource path for the program
 
-add_definitions(-D_RESOURCES="${CMAKE_SOURCE_DIR}/resources/")
-message(${CMAKE_SOURCE_DIR}/resources)
+add_definitions(-D_RESOURCES="${CMAKE_CURRENT_SOURCE_DIR}/resources/")
+message(${CMAKE_CURRENT_SOURCE_DIR}/resources)
 
 execute_process(COMMAND git log --pretty=format:'%H' -n 1
                 OUTPUT_VARIABLE GIT_REV
@@ -82,6 +82,6 @@ endif (WIN32)
 
 target_link_libraries(${executable}
 	${CMAKE_DL_LIBS}
-	${CMAKE_SOURCE_DIR}/lib/GameNetworkingSockets_s.lib
-	${CMAKE_SOURCE_DIR}/lib/spdlogd.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/lib/GameNetworkingSockets_s.lib
+	${CMAKE_CURRENT_SOURCE_DIR}/lib/spdlogd.lib
 )
