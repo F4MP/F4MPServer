@@ -35,3 +35,5 @@ cmake-build-release/
 *.exe
 *.out
 *.app
+
+include/*

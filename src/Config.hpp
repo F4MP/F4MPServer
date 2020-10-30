@@ -11,7 +11,7 @@ public:
     Config() {}
 
     // Omit copy constructor(s)
-    Config(Config const&) = delete;
+    Config(Config const&) = default;
     void operator=(Config const&) = delete;
 
     static Config& getInstance()
